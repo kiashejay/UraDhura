@@ -32,9 +32,14 @@ class Battle:
 		thirdcard = pygame.Rect(self.card_gap*3+self.card_width*2, 
 											HEIGHT - self.holderHeight + self.card_gap, 
 											self.card_width, self.card_height)
-		self.cards.append([GOLD, firstcard])
-		self.cards.append([GOLD, secondcard])
-		self.cards.append([GOLD, thirdcard])
+
+		# card colors
+		self.normalCardColor = GOLD
+		self.clickedCardColor = RED
+
+		self.cards.append([self.normalCardColor, firstcard])
+		self.cards.append([self.normalCardColor, secondcard])
+		self.cards.append([self.normalCardColor, thirdcard])
 
 		# Card icons
 		iconwidth, iconheight = self.card_width-20, self.card_height-20
@@ -48,6 +53,9 @@ class Battle:
 
 		blackx = self.card_gap*3+self.card_width*5/2
 		self.blackcard = Unit(self.game, blackx, y, BLACK, iconwidth, iconheight)
+
+		# updates
+		self.clicked = False
 
 	def draw_battle(self):
 		# draw home bg
@@ -76,9 +84,14 @@ class Battle:
 
 	def update(self):
 		mouse_pos = pygame.mouse.get_pos()
-		for index, (color, card) in enumerate(self.cards):
-			hovered = card.collidepoint(mouse_pos)
-			self.cards[index][0] = ORANGEYELLOW if hovered else color
+		if self.clicked:
+			for index, (color, card) in enumerate(self.cards):
+				clicked = card.collidepoint(mouse_pos)
+				if clicked:
+					self.cards[index][0] = self.clickedCardColor
+					self.clicked = False
+				else:
+					self.cards[index][0] = self.normalCardColor
 
 	def run(self):
 		# poll for events
@@ -89,7 +102,7 @@ class Battle:
 				return
 			# Left click
 			if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-				pass
+				self.clicked = True
 
 		self.update()
 		self.draw_battle()
